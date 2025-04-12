@@ -1,5 +1,5 @@
 import math
-
+from EsproMusic import app
 from pyrogram.types import InlineKeyboardButton
 
 from EsproMusic.utils.formatters import time_to_seconds
@@ -55,7 +55,7 @@ def stream_markup_timer(_, chat_id, played, dur):
     buttons = [
         [
             InlineKeyboardButton(
-                text=_["S_B_3"],
+                text="✚ Aᴅᴅ Mᴇ Tᴏ Yᴏᴜʀ Gʀᴏᴜᴘ ✚",
                 url=f"https://t.me/{app.username}?startgroup=true",
             )
         ],
@@ -81,7 +81,7 @@ def stream_markup(_, chat_id):
     buttons = [
         [
             InlineKeyboardButton(
-                text=_["S_B_3"],
+                text="✚ Aᴅᴅ Mᴇ Tᴏ Yᴏᴜʀ Gʀᴏᴜᴘ ✚",
                 url=f"https://t.me/{app.username}?startgroup=true",
             )
         ],
