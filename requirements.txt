@@ -22,6 +22,6 @@ spotipy
 tgcrypto
 unidecode
 google-api-python-client
-yt-dlp
+yt-dlp[web]
 youtube-search
 youtube-search-python
