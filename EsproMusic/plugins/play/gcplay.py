@@ -1,62 +1,59 @@
-from pyrogram import filters
+# group_vc_playback.py
+
+from pyrogram import Client, filters
+from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 from pyrogram.enums import ChatType
-from pyrogram.types import Message
 
-from EsproMusic import app
-from EsproMusic.utils.database import set_cmode
-from EsproMusic.utils.decorators.admins import AdminActual
-from config import BANNED_USERS
+from EsproMusic import app  # Make sure your Pyrogram Client is named app or update accordingly
 
+# Temporary in-memory mapping (replace with persistent DB logic)
+vc_group_map = {}
 
-@app.on_message(filters.command(["groupplay", "gplaymode", "gpm"]) & filters.group & ~BANNED_USERS)
-@AdminActual
-async def groupplay_(client, message: Message, _):
+async def set_vc_group(from_id: int, to_id: int):
+    vc_group_map[from_id] = to_id
+
+async def get_vc_group(from_id: int):
+    return vc_group_map.get(from_id)
+
+# Command to set VC target group
+@app.on_message(filters.command("setvcgroup") & filters.group)
+async def set_vc(client: Client, message: Message):
     if len(message.command) < 2:
-        return await message.reply_text("**Usage:** `/groupplay [disable | group_id | @username | invite_link]`")
-
-    query = message.command[1].strip()
-
-    if query.lower() == "disable":
-        await set_cmode(message.chat.id, None)
-        return await message.reply_text("✅ Group play mode disabled. Now playing in this group only.")
+        return await message.reply("Usage: /setvcgroup <target_group_id>")
 
     try:
-        # Accept invite link if user provides it
-        if "t.me/joinchat/" in query or "t.me/+" in query:
-            invited = await app.join_chat(query)
-            target_chat = await app.get_chat(invited.id)
-        else:
-            target_chat = await app.get_chat(query)
+        target_id = int(message.command[1])
+        chat = await app.get_chat(target_id)
+        if chat.type != ChatType.SUPERGROUP:
+            return await message.reply("Please provide a valid supergroup ID.")
+
+        await set_vc_group(message.chat.id, target_id)
+        return await message.reply(f"VC group set successfully! Now music from this group will play in {chat.title}.")
     except Exception as e:
-        print(f"[groupplay ERROR] Failed to get chat for query '{query}': {e}")
-        return await message.reply_text("❌ Failed to find or join the group. Please check the username, ID, or invite link.")
+        return await message.reply(f"Error: {e}")
 
-    if target_chat.type not in [ChatType.GROUP, ChatType.SUPERGROUP]:
-        return await message.reply_text("❌ Only groups can be linked using this command.")
+# GPlay command to trigger music in linked VC group
+@app.on_message(filters.command("gplay") & filters.group)
+async def gplay_handler(client: Client, message: Message):
+    if len(message.command) < 2:
+        return await message.reply("Usage: /gplay <song name or link>")
 
-    if target_chat.id == message.chat.id:
-        return await message.reply_text("❌ This is already the current group.")
+    query = message.text.split(None, 1)[1]
+    from_group_id = message.chat.id
+    to_group_id = await get_vc_group(from_group_id) or from_group_id  # Default to current group if not mapped
 
-    # Check if user is admin in the target group
+    # Your existing playback code goes here
+    # Example: await play_music(to_group_id, query)
+    await message.reply(f"Simulated: Playing '{query}' in group ID {to_group_id}...")
+
+    # Send VC join link
     try:
-        member = await app.get_chat_member(target_chat.id, message.from_user.id)
-        if member.status not in ["administrator", "creator"]:
-            return await message.reply_text("❌ You must be an **admin** in the target group.")
+        link = await app.create_chat_invite_link(to_group_id)
+        await message.reply(
+            f"Join the voice chat where music is playing:",
+            reply_markup=InlineKeyboardMarkup([
+                [InlineKeyboardButton("Join VC", url=link.invite_link)]
+            ])
+        )
     except Exception as e:
-        print(f"[groupplay ERROR] User admin check failed: {e}")
-        return await message.reply_text("❌ Couldn't verify your admin rights in the target group.")
-
-    # Check if bot is admin in the target group
-    try:
-        bot_member = await app.get_chat_member(target_chat.id, client.me.id)
-        if bot_member.status != "administrator":
-            return await message.reply_text("❌ I'm not an **admin** in the target group. Please promote me first.")
-    except Exception as e:
-        print(f"[groupplay ERROR] Bot admin check failed: {e}")
-        return await message.reply_text("❌ Couldn't verify my admin rights in the target group.")
-
-    # Set the group play mode
-    await set_cmode(message.chat.id, target_chat.id)
-    return await message.reply_text(
-        f"✅ Successfully linked group **{target_chat.title}** (`{target_chat.id}`) for playback."
-    )
+        await message.reply(f"Playback started, but couldn't create invite link: {e}")
