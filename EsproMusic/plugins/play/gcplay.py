@@ -3,45 +3,35 @@ from pyrogram.types import Message
 from pyrogram.enums import ChatType
 
 from EsproMusic import app
-from EsproMusic.utils.database import set_gmode
+from EsproMusic.utils.database import set_cmode
 from EsproMusic.utils.decorators.admins import AdminActual
 from config import BANNED_USERS
 
-@app.on_message(filters.command(["groupplay"]) & filters.group & ~BANNED_USERS)
+
+@app.on_message(filters.command(["channelplay"]) & filters.group & ~BANNED_USERS)
 @AdminActual
-async def groupmode_(client, message: Message, _):
+async def playmode_(client, message: Message, _):
     if len(message.command) < 2:
-        return await message.reply_text("Please provide a group username or 'disable'/'linked'.")
-
+        return await message.reply_text(_["cplay_1"].format(message.chat.title))
+    
     query = message.text.split(None, 2)[1].lower().strip()
-
+    
     if query == "disable":
-        await set_gmode(message.chat.id, None)
-        return await message.reply_text("GroupPlay mode disabled. Songs will now play here.")
-
+        await set_cmode(message.chat.id, None)
+        return await message.reply_text(_["cplay_7"])
+    
     elif query == "linked":
         chat = await app.get_chat(message.chat.id)
-        if chat.linked_chat and chat.linked_chat.type in [ChatType.GROUP, ChatType.SUPERGROUP]:
-            group_id = chat.linked_chat.id
-            await set_gmode(message.chat.id, group_id)
-            return await message.reply_text(f"Connected with linked group: {chat.linked_chat.title}")
+        if chat.linked_chat:
+            chat_id = chat.linked_chat.id
+            if chat.linked_chat.type != ChatType.SUPERGROUP:
+                return await message.reply_text("Linked chat must be a group, not a channel.")
+            await set_cmode(message.chat.id, chat_id)
+            return await message.reply_text(
+                _["cplay_3"].format(chat.linked_chat.title, chat.linked_chat.id)
+            )
         else:
-            return await message.reply_text("No linked group found or invalid type.")
-
+            return await message.reply_text(_["cplay_2"])
+    
     else:
-        try:
-            chat = await app.get_chat(query)
-        except:
-            return await message.reply_text("Could not find that group.")
-
-        if chat.type not in [ChatType.GROUP, ChatType.SUPERGROUP]:
-            return await message.reply_text("Provided username is not a valid group.")
-
-        try:
-            members = await app.get_chat_members(chat.id)
-        except:
-            return await message.reply_text("Unable to fetch group members.")
-
-        # Optional: ownership check (can be skipped)
-        await set_gmode(message.chat.id, chat.id)
-        return await message.reply_text(f"Successfully connected to: {chat.title}")
+        return await message.reply_text("Only 'linked' groups are supported, not channels.")
