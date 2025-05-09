@@ -1,6 +1,7 @@
 import os
 from random import randint
 from typing import Union
+import yt_dlp
 
 from pyrogram.types import InlineKeyboardMarkup
 
@@ -418,3 +419,16 @@ async def stream(
             db[chat_id][0]["mystic"] = run
             db[chat_id][0]["markup"] = "tg"
             await mystic.delete()
+
+
+
+async def yt_stream(query):
+    ydl_opts = {
+        "format": "bestaudio/best",
+        "quiet": True,
+        "outtmpl": "downloads/%(title)s.%(ext)s",
+    }
+
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(f"ytsearch:{query}", download=True)['entries'][0]
+        return info['title'], ydl.prepare_filename(info)
