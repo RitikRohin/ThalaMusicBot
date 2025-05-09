@@ -3,11 +3,6 @@ import importlib
 
 from pyrogram import idle
 from pytgcalls.exceptions import NoActiveGroupCall
-from EsproMusic import app
-
-
-
-
 
 import config
 from EsproMusic import LOGGER, app, userbot
@@ -16,7 +11,6 @@ from EsproMusic.misc import sudo
 from EsproMusic.plugins import ALL_MODULES
 from EsproMusic.utils.database import get_banned_users, get_gbanned
 from config import BANNED_USERS
-
 
 
 async def init():
@@ -60,9 +54,7 @@ async def init():
     await app.stop()
     await userbot.stop()
     LOGGER("EsproMusic").info("Stopping Espro Music Bot...")
-    
 
 
 if __name__ == "__main__":
     asyncio.get_event_loop().run_until_complete(init())
-app.run(start_services())
