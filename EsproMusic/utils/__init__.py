@@ -1,5 +1,5 @@
 from .channelplay import *
-from . groupplay import *
+from .groupplay import *
 from .database import *
 from .decorators import *
 from .extraction import *
