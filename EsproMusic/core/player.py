@@ -3,7 +3,6 @@
 from EsproMusic import app
 from config import DURATION_LIMIT
 from EsproMusic.platforms.Youtube import yt_stream
-from pytgcalls import PyTgCalls
 
 async def stream_song(chat_id: int, query: str, requester: str):
     # 1. Download song via yt-dlp or search it
@@ -18,4 +17,3 @@ async def stream_song(chat_id: int, query: str, requester: str):
     # Optional: store song info, logs, etc.
 
 
-pytgcalls = PyTgCalls(app)
