@@ -29,7 +29,7 @@ async def playmode_(client, message: Message, _):
                 _["gplay_3"].format(chat.linked_chat.title, chat.linked_chat.id)
             )
         else:
-            return await message.reply_text(_["gplay_2"])
+            return await message.reply_text(_["gplay_23"])
 
     else:
         try:
