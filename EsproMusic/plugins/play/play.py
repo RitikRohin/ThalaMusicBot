@@ -10,6 +10,7 @@ from EsproMusic import Apple, Resso, SoundCloud, Spotify, Telegram, YouTube, app
 from EsproMusic.core.call import Loy
 from EsproMusic.utils import seconds_to_min, time_to_seconds
 from EsproMusic.utils.channelplay import get_channeplayCB
+from EsproMusic.utils.groupplay import get_groupplayCB
 from EsproMusic.utils.decorators.language import languageCB
 from EsproMusic.utils.decorators.play import PlayWrapper
 from EsproMusic.utils.formatters import formats
