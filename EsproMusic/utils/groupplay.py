@@ -4,7 +4,7 @@ from pyrogram.enums import ChatType
 
 
 async def get_groupplayCB(_, command, CallbackQuery):
-    if command == "g":
+    if command == "c":
         chat_id = await get_cmode(CallbackQuery.message.chat.id)
         if chat_id is None:
             try:
