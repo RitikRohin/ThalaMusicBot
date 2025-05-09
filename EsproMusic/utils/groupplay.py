@@ -8,7 +8,7 @@ async def get_grouplayCB(_, command, CallbackQuery):
         chat_id = await get_cmode(CallbackQuery.message.chat.id)
         if chat_id is None:
             try:
-                return await CallbackQuery.answer(_["setting_7"], show_alert=True)
+                return await CallbackQuery.answer(_["setting_13"], show_alert=True)
             except:
                 return None, None
         try:
