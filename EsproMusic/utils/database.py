@@ -37,6 +37,7 @@ pause = {}
 playmode = {}
 playtype = {}
 skipmode = {}
+group_map = {}  
 
 
 async def get_assistant_number(chat_id: int) -> str:
@@ -66,6 +67,12 @@ async def set_assistant_new(chat_id, number):
     )
 
 
+
+async def set_play_group(source_group_id: int, target_group_id: int):
+    group_map[source_group_id] = target_group_id
+
+async def get_play_group(source_group_id: int):
+    return group_map.get(source_group_id)
 async def set_assistant(chat_id):
     from EsproMusic.core.userbot import assistants
 
