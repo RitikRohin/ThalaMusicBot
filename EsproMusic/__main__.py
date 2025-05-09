@@ -4,7 +4,7 @@ import importlib
 from pyrogram import idle
 from pytgcalls.exceptions import NoActiveGroupCall
 from EsproMusic import app
-from EsproMusic.core.vcplayer import pytgcalls
+from EsproMusic.core.player import pytgcalls
 
 
 
