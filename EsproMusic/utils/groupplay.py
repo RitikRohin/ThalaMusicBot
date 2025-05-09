@@ -14,11 +14,11 @@ async def get_grouplayCB(_, command, CallbackQuery):
         try:
             chat = await app.get_chat(chat_id)
             if chat.type not in [ChatType.SUPERGROUP, ChatType.GROUP, ChatType.CHANNEL]:
-                return await CallbackQuery.answer(_["cplay_5"], show_alert=True)
+                return await CallbackQuery.answer(_["gplay_5"], show_alert=True)
             title = chat.title
         except:
             try:
-                return await CallbackQuery.answer(_["cplay_4"], show_alert=True)
+                return await CallbackQuery.answer(_["gplay_4"], show_alert=True)
             except:
                 return None, None
     else:
