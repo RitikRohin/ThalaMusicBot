@@ -2,6 +2,8 @@
 
 from EsproMusic import app
 from config import DURATION_LIMIT
+
+from pytgcalls import PyTgCalls
 from EsproMusic.platforms.Youtube import yt_stream
 
 async def stream_song(chat_id: int, query: str, requester: str):
