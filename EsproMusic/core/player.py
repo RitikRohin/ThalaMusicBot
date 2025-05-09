@@ -9,7 +9,7 @@ async def stream_song(chat_id: int, query: str, requester: str):
     title, path = await yt_stream(query)
 
     # 2. Join VC and play (use your existing VC join/play logic here)
-    await app.join_group_call(
+    await pytgcalls.join_group_call(
         chat_id,
         path,
         stream_type="local",  # or input-stream depending on your player
