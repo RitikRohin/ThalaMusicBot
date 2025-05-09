@@ -1,7 +1,7 @@
 from pyrogram import filters
 from pyrogram.types import Message
 from EsproMusic import app
-from EsproMusic.utils.database.group_mapping import get_play_group
+from EsproMusic.utils.database import get_play_group
 
 # Replace this with your actual play logic
 from EsproMusic.core.player import stream_song
