@@ -414,14 +414,3 @@ class YouTubeAPI:
             downloaded_file = await loop.run_in_executor(None, audio_dl)
         return downloaded_file, direct
 
-async def yt_stream(query):
-    ydl_opts = {
-        "format": "bestaudio/best",
-        "quiet": True,
-        "outtmpl": "downloads/%(title)s.%(ext)s",
-        "cookiefile": cookie_txt_file(),
-    }
-
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        info = ydl.extract_info(f"ytsearch:{query}", download=True)['entries'][0]
-        return info['title'], ydl.prepare_filename(info)
