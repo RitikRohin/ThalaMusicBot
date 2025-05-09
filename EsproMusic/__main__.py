@@ -3,6 +3,12 @@ import importlib
 
 from pyrogram import idle
 from pytgcalls.exceptions import NoActiveGroupCall
+from EsproMusic import app
+from EsproMusic.core.vcplayer import pytgcalls
+
+
+
+
 
 import config
 from EsproMusic import LOGGER, app, userbot
@@ -55,7 +61,8 @@ async def init():
     await app.stop()
     await userbot.stop()
     LOGGER("EsproMusic").info("Stopping Espro Music Bot...")
-
+    
+    await pytgcalls.start()
 
 if __name__ == "__main__":
     asyncio.get_event_loop().run_until_complete(init())
