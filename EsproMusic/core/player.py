@@ -19,3 +19,6 @@ async def stream_song(chat_id: int, query: str, requester: str):
     # Optional: store song info, logs, etc.
 
 
+
+
+pytgcalls = PyTgCalls(app)
