@@ -2,7 +2,7 @@
 
 from EsproMusic import app
 from config import DURATION_LIMIT
-from EsproMusic.utils.stream import yt_stream
+from EsproMusic.utils.stream.stream import yt_stream
 
 async def stream_song(chat_id: int, query: str, requester: str):
     # 1. Download song via yt-dlp or search it
