@@ -1,7 +1,7 @@
 from pyrogram import filters
 from pyrogram.types import Message
 from EsproMusic import app
-from EsproMusic.utils.database.group_mapping import set_play_group
+from EsproMusic.utils.database import set_play_group
 
 @app.on_message(filters.command("setvc") & filters.group)
 async def set_vc_group(_, message: Message):
