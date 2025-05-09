@@ -11,6 +11,11 @@ from EsproMusic.misc import sudo
 from EsproMusic.plugins import ALL_MODULES
 from EsproMusic.utils.database import get_banned_users, get_gbanned
 from config import BANNED_USERS
+# In your main.py or wherever app.run() is
+from EsproMusic.core.player import pytgcalls
+
+async def start_services():
+    await pytgcalls.start()
 
 
 async def init():
@@ -58,3 +63,4 @@ async def init():
 
 if __name__ == "__main__":
     asyncio.get_event_loop().run_until_complete(init())
+app.run(start_services())
