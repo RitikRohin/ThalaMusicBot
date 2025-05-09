@@ -3,7 +3,7 @@ from EsproMusic.utils.database import get_cmode
 from pyrogram.enums import ChatType
 
 
-async def get_grouplayCB(_, command, CallbackQuery):
+async def get_groupplayCB(_, command, CallbackQuery):
     if command == "g":
         chat_id = await get_cmode(CallbackQuery.message.chat.id)
         if chat_id is None:
