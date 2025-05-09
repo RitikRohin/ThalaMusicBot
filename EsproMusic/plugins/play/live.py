@@ -20,6 +20,7 @@ async def play_live_stream(client, CallbackQuery, _):
             return
     try:
         chat_id, channel = await get_channeplayCB(_, cplay, CallbackQuery)
+        chat_id, channel = async get_groupplayCB(_, gplay, CallbackQuery):
     except:
         return
     video = True if mode == "v" else None
