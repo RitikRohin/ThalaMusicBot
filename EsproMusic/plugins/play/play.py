@@ -446,7 +446,6 @@ async def play_Music(client, CallbackQuery, _):
             return
     try:
         chat_id, channel = await get_channeplayCB(_, cplay, CallbackQuery)
-        chat_id, channel = await get_groupplayCB(_, gplay, CallbackQuery)
     except:
         return
     user_name = CallbackQuery.from_user.first_name
@@ -532,7 +531,6 @@ async def play_playlists_command(client, CallbackQuery, _):
             return
     try:
         chat_id, channel = await get_channeplayCB(_, cplay, CallbackQuery)
-        chat_id, channel = await get_groupplayCB(_, gplay, CallbackQuery)
     except:
         return
     user_name = CallbackQuery.from_user.first_name
