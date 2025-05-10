@@ -1,5 +1,5 @@
 from pyrogram import filters
-from pyrogram.enums import ChatMembersFilter, ChatMemberStatus, ChatType
+from pyrogram.enums import ChatMembersFilter, ChatType
 from pyrogram.types import Message
 
 from EsproMusic import app
@@ -39,6 +39,9 @@ async def playmode_(client, message: Message, _):
 
         if chat.type not in [ChatType.GROUP, ChatType.SUPERGROUP]:
             return await message.reply_text(_["gplay_5"])
+
+        if chat.id == message.chat.id:
+            return await message.reply_text("You cannot link the same group to itself.")
 
         # Check if the command sender is an admin in the target group
         is_admin = False
