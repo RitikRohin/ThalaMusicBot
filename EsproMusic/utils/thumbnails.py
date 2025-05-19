@@ -71,7 +71,7 @@ async def get_thumb(videoid):
 
         # Crop center thumbnail and resize
         image3 = image1.crop((280, 0, 1000, 720))
-        image3 = image3.resize((640, 360))  # Resize thumbnail
+        image3 = image3.resize((854, 480))  # Resize thumbnail
 
         # Create white border
         border_width = 10
