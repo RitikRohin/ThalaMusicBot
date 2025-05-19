@@ -89,7 +89,7 @@ async def get_thumb(videoid):
             # changing circle color
             im = circle
             im = im.convert('RGBA')
-            
+            color = make_col()
 
             data = np.array(im)
             red, green, blue, alpha = data.T
@@ -119,27 +119,10 @@ async def get_thumb(videoid):
             font1 = ImageFont.truetype('EsproMusic/assets/font.ttf', 30)
             font2 = ImageFont.truetype('EsproMusic/assets/font2.ttf', 70)
             font3 = ImageFont.truetype('EsproMusic/assets/font2.ttf', 40)
-            font4 = ImageFont.truetype('EsproMusic/assets/font2.ttf', 35)
-
-            image4 = ImageDraw.Draw(image2)
-            image4.text((10, 10), "Espro Music", fill="white", font = font1, align ="left") 
-            image4.text((670, 150), "NOW PLAYING", fill="white", font = font2, stroke_width=2, stroke_fill="white", align ="left") 
-
-            # title
-            title1 = truncate(title)
-            image4.text((670, 300), text=title1[0], fill="white", stroke_width=1, stroke_fill="white",font = font3, align ="left") 
-            image4.text((670, 350), text=title1[1], fill="white", stroke_width=1, stroke_fill="white", font = font3, align ="left") 
-
-            # description
-            views = f"Views : {views}"
-            duration = f"Duration : {duration} Mins"
-            channel = f"Channel : {channel}"
-
-            image4.text((670, 450), text=views, fill="white", font = font4, align ="left") 
-            image4.text((670, 500), text=duration, fill="white", font = font4, align ="left") 
-            image4.text((670, 550), text=channel, fill="white", font = font4, align ="left")
             
             
+            
+            image2 = ImageOps.expand(image2,border=20,fill=make_col())
             image2 = image2.convert('RGB')
             image2.save(f"cache/{videoid}.jpg")
             file = f"cache/{videoid}.jpg"
