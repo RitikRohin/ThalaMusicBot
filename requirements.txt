@@ -25,4 +25,3 @@ google-api-python-client
 yt-dlp[web]
 youtube-search
 youtube-search-python
-youtubesearchpython
