@@ -4,14 +4,13 @@ import random
 import re
 import aiofiles
 import aiohttp
-from PIL import Image, ImageDraw, ImageEnhance, ImageFilter, ImageFont
+from PIL import Image, ImageEnhance, ImageFilter, ImageFont
 from youtubesearchpython.__future__ import VideosSearch
-import numpy as np
 from config import YOUTUBE_IMG_URL
 
 
 def make_col():
-    return (random.randint(0,255), random.randint(0,255), random.randint(0,255))
+    return (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
 
 
 def changeImageSize(maxWidth, maxHeight, image):
@@ -60,6 +59,7 @@ async def get_thumb(videoid):
                     async with aiofiles.open(f"cache/thumb{videoid}.jpg", mode="wb") as f:
                         await f.write(await resp.read())
 
+        # Load and resize the thumbnail
         youtube = Image.open(f"cache/thumb{videoid}.jpg")
         image1 = changeImageSize(1280, 720, youtube)
         image2 = image1.convert("RGBA")
@@ -71,26 +71,29 @@ async def get_thumb(videoid):
 
         # Crop center thumbnail and resize
         image3 = image1.crop((280, 0, 1000, 720))
-        image3 = image3.resize((540, 360))  # Slightly smaller size
+        image3 = image3.resize((540, 360))  # Resize thumbnail
 
-        # Create white border around thumbnail
+        # Create white border
         border_width = 5
         bg_width = image3.width + 2 * border_width
         bg_height = image3.height + 2 * border_width
         white_bg = Image.new("RGB", (bg_width, bg_height), (255, 255, 255))
         white_bg.paste(image3, (border_width, border_width))
 
-        # Paste final bordered thumbnail on background
+        # Paste bordered thumbnail centered on background
         image2 = image2.convert("RGB")
-        image2.paste(white_bg, (50, 150))
+        bg_w, bg_h = image2.size
+        thumb_w, thumb_h = white_bg.size
+        x = (bg_w - thumb_w) // 2
+        y = (bg_h - thumb_h) // 2
+        image2.paste(white_bg, (x, y))
 
-        # Load fonts
+        # Fonts (optional if you want to add text later)
         font1 = ImageFont.truetype('EsproMusic/assets/font.ttf', 30)
         font2 = ImageFont.truetype('EsproMusic/assets/font2.ttf', 70)
         font3 = ImageFont.truetype('EsproMusic/assets/font2.ttf', 40)
 
-        # (Optional) You can draw text here using ImageDraw.Draw if needed
-
+        # Save and return
         image2.save(final_path)
         return final_path
 
