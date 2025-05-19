@@ -2,18 +2,16 @@ import asyncio
 import os
 import random
 import re
-import textwrap
 import aiofiles
 import aiohttp
-from PIL import (Image, ImageDraw, ImageEnhance, ImageFilter,
-                 ImageFont, ImageOps)
+from PIL import Image, ImageDraw, ImageEnhance, ImageFilter, ImageFont
 from youtubesearchpython.__future__ import VideosSearch
 import numpy as np
 from config import YOUTUBE_IMG_URL
 
 
 def make_col():
-    return (random.randint(0,255),random.randint(0,255),random.randint(0,255))
+    return (random.randint(0,255), random.randint(0,255), random.randint(0,255))
 
 
 def changeImageSize(maxWidth, maxHeight, image):
@@ -24,109 +22,78 @@ def changeImageSize(maxWidth, maxHeight, image):
     newImage = image.resize((newWidth, newHeight))
     return newImage
 
-def truncate(text):
-    list = text.split(" ")
-    text1 = ""
-    text2 = ""    
-    for i in list:
-        if len(text1) + len(i) < 30:        
-            text1 += " " + i
-        elif len(text2) + len(i) < 30:       
-            text2 += " " + i
 
-    text1 = text1.strip()
-    text2 = text2.strip()     
-    return [text1,text2]
+def truncate(text):
+    words = text.split(" ")
+    text1 = ""
+    text2 = ""
+    for word in words:
+        if len(text1) + len(word) < 30:
+            text1 += " " + word
+        elif len(text2) + len(word) < 30:
+            text2 += " " + word
+    return [text1.strip(), text2.strip()]
+
 
 async def get_thumb(videoid):
     try:
-        if os.path.isfile(f"cache/{videoid}.jpg"):
-            return f"cache/{videoid}.jpg"
+        final_path = f"cache/{videoid}.jpg"
+        if os.path.isfile(final_path):
+            return final_path
 
         url = f"https://www.youtube.com/watch?v={videoid}"
-        if 1==1:
-            results = VideosSearch(url, limit=1)
-            for result in (await results.next())["result"]:
-                try:
-                    title = result["title"]
-                    title = re.sub("\W+", " ", title)
-                    title = title.title()
-                except:
-                    title = "Unsupported Title"
-                try:
-                    duration = result["duration"]
-                except:
-                    duration = "Unknown Mins"
-                thumbnail = result["thumbnails"][0]["url"].split("?")[0]
-                try:
-                    views = result["viewCount"]["short"]
-                except:
-                    views = "Unknown Views"
-                try:
-                    channel = result["channel"]["name"]
-                except:
-                    channel = "Unknown Channel"
+        results = VideosSearch(url, limit=1)
+        for result in (await results.next())["result"]:
+            try:
+                title = re.sub(r"\W+", " ", result.get("title", "Unsupported Title")).title()
+            except:
+                title = "Unsupported Title"
+            duration = result.get("duration", "Unknown Mins")
+            thumbnail = result["thumbnails"][0]["url"].split("?")[0]
+            views = result.get("viewCount", {}).get("short", "Unknown Views")
+            channel = result.get("channel", {}).get("name", "Unknown Channel")
 
-            async with aiohttp.ClientSession() as session:
-                async with session.get(f"http://img.youtube.com/vi/{videoid}/maxresdefault.jpg") as resp:
-                    if resp.status == 200:
-                        f = await aiofiles.open(
-                            f"cache/thumb{videoid}.jpg", mode="wb"
-                        )
+        # Download YouTube thumbnail
+        async with aiohttp.ClientSession() as session:
+            async with session.get(f"http://img.youtube.com/vi/{videoid}/maxresdefault.jpg") as resp:
+                if resp.status == 200:
+                    async with aiofiles.open(f"cache/thumb{videoid}.jpg", mode="wb") as f:
                         await f.write(await resp.read())
-                        await f.close()
 
-            youtube = Image.open(f"cache/thumb{videoid}.jpg")
-            image1 = changeImageSize(1280, 720, youtube)
-            image2 = image1.convert("RGBA")
-            background = image2.filter(filter=ImageFilter.BoxBlur(30))
-            enhancer = ImageEnhance.Brightness(background)
-            background = enhancer.enhance(0.6)
-            image2 = background
-                                                                                            
-            circle = Image.open("EsproMusic/assets/circle.png")
+        youtube = Image.open(f"cache/thumb{videoid}.jpg")
+        image1 = changeImageSize(1280, 720, youtube)
+        image2 = image1.convert("RGBA")
 
-            # changing circle color
-            im = circle
-            im = im.convert('RGBA')
-            color = make_col()
+        # Create blurred background
+        background = image2.filter(filter=ImageFilter.BoxBlur(30))
+        enhancer = ImageEnhance.Brightness(background)
+        image2 = enhancer.enhance(0.6)
 
-            data = np.array(im)
-            red, green, blue, alpha = data.T
+        # Crop center thumbnail and resize
+        image3 = image1.crop((280, 0, 1000, 720))
+        image3 = image3.resize((540, 360))  # Slightly smaller size
 
-            white_areas = (red == 255) & (blue == 255) & (green == 255)
-            data[..., :-1][white_areas.T] = color
+        # Create white border around thumbnail
+        border_width = 5
+        bg_width = image3.width + 2 * border_width
+        bg_height = image3.height + 2 * border_width
+        white_bg = Image.new("RGB", (bg_width, bg_height), (255, 255, 255))
+        white_bg.paste(image3, (border_width, border_width))
 
-            im2 = Image.fromarray(data)
-            circle = im2
-            # done
+        # Paste final bordered thumbnail on background
+        image2 = image2.convert("RGB")
+        image2.paste(white_bg, (50, 150))
 
-            image3 = image1.crop((280,0,1000,720))
-            lum_img = Image.new('L', [720,720] , 0)
-            draw = ImageDraw.Draw(lum_img)
-            draw.pieslice([(0,0), (720,720)], 0, 360, fill = 255, outline = "white")
-            img_arr = np.array(image3)
-            lum_img_arr = np.array(lum_img)
-            final_img_arr = np.dstack((img_arr,lum_img_arr))
-            image3 = Image.fromarray(final_img_arr)
-            image3 = image3.resize((600,600))
-            
+        # Load fonts
+        font1 = ImageFont.truetype('EsproMusic/assets/font.ttf', 30)
+        font2 = ImageFont.truetype('EsproMusic/assets/font2.ttf', 70)
+        font3 = ImageFont.truetype('EsproMusic/assets/font2.ttf', 40)
 
-            image2.paste(image3, (50,70), mask = image3)
-            image2.paste(circle, (0,0), mask = circle)
+        # (Optional) You can draw text here using ImageDraw.Draw if needed
 
-            # fonts
-            font1 = ImageFont.truetype('EsproMusic/assets/font.ttf', 30)
-            font2 = ImageFont.truetype('EsproMusic/assets/font2.ttf', 70)
-            font3 = ImageFont.truetype('EsproMusic/assets/font2.ttf', 40)
-            
-            
-            
-            image2 = ImageOps.expand(image2,border=20,fill=make_col())
-            image2 = image2.convert('RGB')
-            image2.save(f"cache/{videoid}.jpg")
-            file = f"cache/{videoid}.jpg"
-            return file
+        image2.save(final_path)
+        return final_path
+
     except Exception as e:
         print(e)
         return YOUTUBE_IMG_URL
