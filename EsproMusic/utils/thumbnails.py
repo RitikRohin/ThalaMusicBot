@@ -84,10 +84,7 @@ async def get_thumb(videoid):
         logo = Image.open("EsproMusic/assets/logo.png").convert("RGBA")
 
         # Resize logo if needed (optional)
-        logo = logo.resize((100, 100))  # adjust size as needed
-
-        # Paste logo on top-left corner of thumbnail
-        white_bg.paste(logo, (10, 10), logo)  # (x, y) position
+        logo = logo.resize((1280, 720))  # adjust size as needed
 
         # Paste bordered thumbnail centered on background
         image2 = image2.convert("RGB")
