@@ -80,11 +80,6 @@ async def get_thumb(videoid):
         white_bg = Image.new("RGB", (bg_width, bg_height), (255, 255, 255))
         white_bg.paste(image3, (border_width, border_width))
 
-        # Load PNG logo with transparency
-        logo = Image.open("EsproMusic/assets/logo.png").convert("RGBA")
-
-        # Resize logo if needed (optional)
-        logo = logo.resize((1280, 720))  # adjust size as needed
 
         # Paste bordered thumbnail centered on background
         image2 = image2.convert("RGB")
