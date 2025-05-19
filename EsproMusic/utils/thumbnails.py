@@ -89,7 +89,7 @@ async def get_thumb(videoid):
             # changing circle color
             im = circle
             im = im.convert('RGBA')
-            color = make_col()
+            
 
             data = np.array(im)
             red, green, blue, alpha = data.T
@@ -139,7 +139,7 @@ async def get_thumb(videoid):
             image4.text((670, 500), text=duration, fill="white", font = font4, align ="left") 
             image4.text((670, 550), text=channel, fill="white", font = font4, align ="left")
             
-            image2 = ImageOps.expand(image2,border=20,fill=make_col())
+            
             image2 = image2.convert('RGB')
             image2.save(f"cache/{videoid}.jpg")
             file = f"cache/{videoid}.jpg"
