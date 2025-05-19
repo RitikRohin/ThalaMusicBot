@@ -79,22 +79,7 @@ async def get_thumb(videoid):
         bg_height = image3.height + 2 * border_width
         white_bg = Image.new("RGB", (bg_width, bg_height), (255, 255, 255))
         white_bg.paste(image3, (border_width, border_width))
-        # hello 
-        circle = Image.open("EsproMusic/assets/circle.png")
-
-            # changing circle color
-            im = circle
-            im = im.convert('RGBA')
-            color = make_col()
-
-            data = np.array(im)
-            red, green, blue, alpha = data.T
-
-            white_areas = (red == 255) & (blue == 255) & (green == 255)
-            data[..., :-1][white_areas.T] = color
-
-            im2 = Image.fromarray(data)
-            circle = im2
+        
 
         # Paste bordered thumbnail centered on background
         image2 = image2.convert("RGB")
