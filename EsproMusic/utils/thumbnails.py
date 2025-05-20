@@ -79,13 +79,6 @@ async def get_thumb(videoid):
         bg_height = image3.height + 2 * border_width
         white_bg = Image.new("RGB", (bg_width, bg_height), (255, 255, 255))
         white_bg.paste(image3, (border_width, border_width))
-        # Paste logo
-        try:
-            logo = Image.open("EsproMusic/assets/logo.png").convert("RGBA")
-            logo = logo.resize((100, 100))  # Resize as needed
-            blurred_bg.paste(logo, (20, 20), logo)  # Top-left corner
-        except Exception as e:
-            print("Logo paste failed:", e)
 
         # Paste bordered thumbnail centered on background
         image2 = image2.convert("RGB")
