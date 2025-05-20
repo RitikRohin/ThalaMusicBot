@@ -95,14 +95,7 @@ async def get_thumb(videoid):
         py = image2.height - progress_img.height - 20
         image2.paste(progress_img, (px, py), progress_img)
 
-        # Draw play button in center
-        cx, cy = image2.size[0] // 2, image2.size[1] // 2
-        triangle = [
-            (cx - 30, cy - 40),
-            (cx - 30, cy + 40),
-            (cx + 40, cy)
-        ]
-        draw.polygon(triangle, fill=(255, 255, 255))
+        
 
         # Save final image
         image2.save(final_path)
