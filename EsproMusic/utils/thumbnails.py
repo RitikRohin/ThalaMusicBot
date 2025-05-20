@@ -90,9 +90,8 @@ async def get_thumb(videoid):
 
         # Load and add progress bar image
         progress_img = Image.open("EsproMusic/assets/logo.png").convert("RGBA")
-        progress_img = progress_img.resize((800, 20))
-        px = (image2.width - progress_img.width) // 2
-        py = image2.height - progress_img.height - 20
+        progress_img = progress_img.resize((1280, 720))
+        
         image2.paste(progress_img, (px, py), progress_img)
 
         
