@@ -1,116 +1,121 @@
 import os
 import re
+
 import aiofiles
 import aiohttp
 from PIL import Image, ImageDraw, ImageEnhance, ImageFilter, ImageFont
 from unidecode import unidecode
-import isodate
+from youtubesearchpython.__future__ import VideosSearch
 
 from EsproMusic import app
-from config import YOUTUBE_IMG_URL, YT_API_KEY
+from config import YOUTUBE_IMG_URL
 
 
 def changeImageSize(maxWidth, maxHeight, image):
-    ratio = min(maxWidth / image.width, maxHeight / image.height)
-    return image.resize((int(image.width * ratio), int(image.height * ratio)))
+    widthRatio = maxWidth / image.size[0]
+    heightRatio = maxHeight / image.size[1]
+    newWidth = int(widthRatio * image.size[0])
+    newHeight = int(heightRatio * image.size[1])
+    newImage = image.resize((newWidth, newHeight))
+    return newImage
 
 
 def clear(text):
+    list = text.split(" ")
     title = ""
-    for word in text.split():
-        if len(title + " " + word) < 60:
-            title += " " + word
+    for i in list:
+        if len(title) + len(i) < 60:
+            title += " " + i
     return title.strip()
 
 
-async def get_video_info(videoid):
-    url = (
-        f"https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics"
-        f"&id={videoid}&key={YT_API_KEY}"
-    )
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url) as resp:
-            if resp.status != 200:
-                return None
-            data = await resp.json()
-            items = data.get("items")
-            if not items:
-                return None
-            info = items[0]
-            snippet = info["snippet"]
-            stats = info.get("statistics", {})
-            duration = info["contentDetails"]["duration"]
-
-            # Convert ISO 8601 duration to mm:ss format
-            dur = isodate.parse_duration(duration)
-            duration_str = f"{dur.seconds // 60:02}:{dur.seconds % 60:02}"
-
-            return {
-                "title": snippet["title"],
-                "channel": snippet["channelTitle"],
-                "views": stats.get("viewCount", "N/A"),
-                "thumbnail": snippet["thumbnails"]["high"]["url"],
-                "duration": duration_str,
-            }
-
-
 async def get_thumb(videoid):
-    final_path = f"cache/{videoid}.png"
-    if os.path.exists(final_path):
-        return final_path
+    if os.path.isfile(f"cache/{videoid}.png"):
+        return f"cache/{videoid}.png"
 
-    video_info = await get_video_info(videoid)
-    if not video_info:
-        return YOUTUBE_IMG_URL
-
+    url = f"https://www.youtube.com/watch?v={videoid}"
     try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(video_info["thumbnail"]) as resp:
-                if resp.status == 200:
-                    temp_path = f"cache/thumb{videoid}.png"
-                    async with aiofiles.open(temp_path, mode="wb") as f:
-                        await f.write(await resp.read())
+        results = VideosSearch(url, limit=1)
+        for result in (await results.next())["result"]:
+            try:
+                title = result["title"]
+                title = re.sub("\W+", " ", title)
+                title = title.title()
+            except:
+                title = "Unsupported Title"
+            try:
+                duration = result["duration"]
+            except:
+                duration = "Unknown Mins"
+            thumbnail = result["thumbnails"][0]["url"].split("?")[0]
+            try:
+                views = result["viewCount"]["short"]
+            except:
+                views = "Unknown Views"
+            try:
+                channel = result["channel"]["name"]
+            except:
+                channel = "Unknown Channel"
 
-        youtube = Image.open(temp_path)
+        async with aiohttp.ClientSession() as session:
+            async with session.get(thumbnail) as resp:
+                if resp.status == 200:
+                    f = await aiofiles.open(f"cache/thumb{videoid}.png", mode="wb")
+                    await f.write(await resp.read())
+                    await f.close()
+
+        youtube = Image.open(f"cache/thumb{videoid}.png")
         image1 = changeImageSize(1280, 720, youtube)
         image2 = image1.convert("RGBA")
-        background = ImageEnhance.Brightness(
-            image2.filter(ImageFilter.BoxBlur(10))
-        ).enhance(0.5)
-
+        background = image2.filter(filter=ImageFilter.BoxBlur(10))
+        enhancer = ImageEnhance.Brightness(background)
+        background = enhancer.enhance(0.5)
         draw = ImageDraw.Draw(background)
         arial = ImageFont.truetype("EsproMusic/assets/font2.ttf", 30)
         font = ImageFont.truetype("EsproMusic/assets/font.ttf", 30)
-
-        # Add text info
         draw.text((1110, 8), unidecode(app.name), fill="white", font=arial)
-        draw.text((55, 560), f"{video_info['channel']} | {video_info['views']}", fill="white", font=arial)
-        draw.text((57, 60), clear(video_info["title"]), fill="white", font=font)
-        draw.line([(55, 660), (1220, 660)], fill="white", width=5)
-        draw.ellipse([(918, 648), (942, 672)], outline="white", fill="white", width=15)
-        draw.text((36, 685), "00:00", fill="white", font=arial)
-        draw.text((1185, 685), video_info["duration"], fill="white", font=arial)
-
-        # Centered circular cropped thumbnail with white border
-        thumb_crop = image1.copy().resize((250, 250))
-        mask = Image.new("L", (250, 250), 0)
-        ImageDraw.Draw(mask).ellipse((0, 0, 250, 250), fill=255)
-
-        border_size = 10
-        bordered_thumb = Image.new("RGBA", (270, 270), (255, 255, 255, 0))
-        border_draw = ImageDraw.Draw(bordered_thumb)
-        border_draw.ellipse((0, 0, 270, 270), fill=(255, 255, 255, 255))
-        bordered_thumb.paste(thumb_crop, (10, 10), mask)
-
-        center_x = (1280 - 270) // 2
-        center_y = (720 - 270) // 2
-        background.paste(bordered_thumb, (center_x, center_y), bordered_thumb)
-
-        # Final save
-        os.remove(temp_path)
-        background.save(final_path)
-        return final_path
-
+        draw.text(
+            (55, 560),
+            f"{channel} | {views[:23]}",
+            (255, 255, 255),
+            font=arial,
+        )
+        draw.text(
+            (57, 60),
+            clear(title),
+            (255, 255, 255),
+            font=font,
+        )
+        draw.line(
+            [(55, 660), (1220, 660)],
+            fill="white",
+            width=5,
+            joint="curve",
+        )
+        draw.ellipse(
+            [(918, 648), (942, 672)],
+            outline="white",
+            fill="white",
+            width=15,
+        )
+        draw.text(
+            (36, 685),
+            "00:00",
+            (255, 255, 255),
+            font=arial,
+        )
+        draw.text(
+            (1185, 685),
+            f"{duration[:23]}",
+            (255, 255, 255),
+            font=arial,
+        )
+        try:
+            os.remove(f"cache/thumb{videoid}.png")
+        except:
+            pass
+        background.save(f"cache/{videoid}.png")
+        return f"cache/{videoid}.png"
     except Exception as e:
-        print(f"Thumbnail creation failed: {e}")
+        print(e)
         return YOUTUBE_IMG_URL
