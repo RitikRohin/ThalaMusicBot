@@ -2,7 +2,6 @@ import asyncio
 import os
 import random
 import re
-import textwrap
 import aiofiles
 import aiohttp
 from PIL import Image, ImageDraw, ImageEnhance, ImageFilter, ImageFont, ImageOps
@@ -26,11 +25,11 @@ def changeImageSize(maxWidth, maxHeight, image):
 def truncate(text):
     words = text.split(" ")
     text1 = ""
-    text2 = ""    
+    text2 = ""
     for word in words:
-        if len(text1) + len(word) < 30:        
+        if len(text1) + len(word) < 30:
             text1 += " " + word
-        elif len(text2) + len(word) < 30:       
+        elif len(text2) + len(word) < 30:
             text2 += " " + word
     return [text1.strip(), text2.strip()]
 
@@ -46,7 +45,6 @@ async def get_thumb(videoid):
         for result in (await results.next())["result"]:
             title = re.sub(r"\W+", " ", result.get("title", "Unsupported Title")).title()
             duration = result.get("duration", "Unknown Mins")
-            thumbnail = result["thumbnails"][0]["url"].split("?")[0]
             views = result.get("viewCount", {}).get("short", "Unknown Views")
             channel = result.get("channel", {}).get("name", "Unknown Channel")
 
@@ -65,25 +63,10 @@ async def get_thumb(videoid):
         background = ImageEnhance.Brightness(background).enhance(0.6)
         image2 = background
 
-        # Load and color circle
-        circle = Image.open("EsproMusic/assets/circle.png").convert("RGBA")
-        color = make_col()
-        data = np.array(circle)
-        red, green, blue, alpha = data.T
-        white_areas = (red == 255) & (green == 255) & (blue == 255)
-        data[..., :-1][white_areas.T] = color
-        circle = Image.fromarray(data)
-
-        # Crop center image circle
-        image3 = image1.crop((280, 0, 1000, 720))
-        lum_img = Image.new("L", [720, 720], 0)
-        ImageDraw.Draw(lum_img).pieslice([(0, 0), (720, 720)], 0, 360, fill=255, outline="white")
-        final_img_arr = np.dstack((np.array(image3), np.array(lum_img)))
-        image3 = Image.fromarray(final_img_arr).resize((600, 600))
-
-        # Paste image parts
-        image2.paste(image3, (50, 70), mask=image3)
-        image2.paste(circle, (0, 0), mask=circle)
+        # Crop, resize, add white border
+        image3 = image1.crop((390, 100, 890, 600)).resize((400, 400))
+        image3 = ImageOps.expand(image3, border=10, fill="white")
+        image2.paste(image3, (100, 150))
 
         # Fonts
         font1 = ImageFont.truetype('EsproMusic/assets/font.ttf', 30)
@@ -104,7 +87,7 @@ async def get_thumb(videoid):
         draw.text((670, 500), f"Duration : {duration} Mins", fill="white", font=font4)
         draw.text((670, 550), f"Channel : {channel}", fill="white", font=font4)
 
-        # Save final image (no border)
+        # Final image
         image2 = image2.convert("RGB")
         image2.save(cached_file)
         return cached_file
