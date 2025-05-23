@@ -63,7 +63,18 @@ async def get_thumb(videoid):
         background = ImageEnhance.Brightness(background).enhance(0.6)
         image2 = background
 
-        # Crop, resize, add white border
+        # Load and recolor circle
+        circle = Image.open("EsproMusic/assets/circle.png").convert("RGBA")
+        data = np.array(circle)
+        r, g, b, a = data.T
+        white_areas = (r == 255) & (g == 255) & (b == 255)
+        data[..., :-1][white_areas.T] = make_col()
+        circle_colored = Image.fromarray(data)
+
+        # Paste circle
+        image2.paste(circle_colored, (50, 100), mask=circle_colored)
+
+        # Crop, resize, add white border to thumbnail
         image3 = image1.crop((390, 100, 890, 600)).resize((400, 400))
         image3 = ImageOps.expand(image3, border=10, fill="white")
         image2.paste(image3, (100, 150))
@@ -87,7 +98,7 @@ async def get_thumb(videoid):
         draw.text((670, 500), f"Duration : {duration} Mins", fill="white", font=font4)
         draw.text((670, 550), f"Channel : {channel}", fill="white", font=font4)
 
-        # Final image
+        # Save image
         image2 = image2.convert("RGB")
         image2.save(cached_file)
         return cached_file
