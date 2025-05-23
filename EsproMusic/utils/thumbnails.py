@@ -2,15 +2,17 @@ import asyncio
 import os
 import random
 import re
+import textwrap
 import aiofiles
 import aiohttp
-from PIL import Image, ImageEnhance, ImageFilter, ImageFont, ImageDraw
+from PIL import Image, ImageDraw, ImageEnhance, ImageFilter, ImageFont, ImageOps
 from youtubesearchpython.__future__ import VideosSearch
+import numpy as np
 from config import YOUTUBE_IMG_URL
 
 
 def make_col():
-    return (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+    return (random.randint(100, 255), random.randint(100, 255), random.randint(100, 255))
 
 
 def changeImageSize(maxWidth, maxHeight, image):
@@ -18,88 +20,94 @@ def changeImageSize(maxWidth, maxHeight, image):
     heightRatio = maxHeight / image.size[1]
     newWidth = int(widthRatio * image.size[0])
     newHeight = int(heightRatio * image.size[1])
-    newImage = image.resize((newWidth, newHeight))
-    return newImage
+    return image.resize((newWidth, newHeight))
 
 
 def truncate(text):
     words = text.split(" ")
     text1 = ""
-    text2 = ""
+    text2 = ""    
     for word in words:
-        if len(text1) + len(word) < 30:
+        if len(text1) + len(word) < 30:        
             text1 += " " + word
-        elif len(text2) + len(word) < 30:
+        elif len(text2) + len(word) < 30:       
             text2 += " " + word
     return [text1.strip(), text2.strip()]
 
 
 async def get_thumb(videoid):
     try:
-        final_path = f"cache/{videoid}.jpg"
-        if os.path.isfile(final_path):
-            return final_path
+        cached_file = f"cache/{videoid}.jpg"
+        if os.path.isfile(cached_file):
+            return cached_file
 
-        url = f"https://www.youtube.com/watch?v={videoid}"
-        results = VideosSearch(url, limit=1)
+        # Get video details
+        results = VideosSearch(f"https://www.youtube.com/watch?v={videoid}", limit=1)
         for result in (await results.next())["result"]:
-            try:
-                title = re.sub(r"\W+", " ", result.get("title", "Unsupported Title")).title()
-            except:
-                title = "Unsupported Title"
+            title = re.sub(r"\W+", " ", result.get("title", "Unsupported Title")).title()
             duration = result.get("duration", "Unknown Mins")
             thumbnail = result["thumbnails"][0]["url"].split("?")[0]
             views = result.get("viewCount", {}).get("short", "Unknown Views")
             channel = result.get("channel", {}).get("name", "Unknown Channel")
 
-        # Download YouTube thumbnail
+        # Download thumbnail
         async with aiohttp.ClientSession() as session:
             async with session.get(f"http://img.youtube.com/vi/{videoid}/maxresdefault.jpg") as resp:
                 if resp.status == 200:
                     async with aiofiles.open(f"cache/thumb{videoid}.jpg", mode="wb") as f:
                         await f.write(await resp.read())
 
-        # Load and resize the thumbnail
+        # Prepare background
         youtube = Image.open(f"cache/thumb{videoid}.jpg")
         image1 = changeImageSize(1280, 720, youtube)
         image2 = image1.convert("RGBA")
-
-        # Create blurred background
         background = image2.filter(ImageFilter.BoxBlur(30))
-        enhancer = ImageEnhance.Brightness(background)
-        image2 = enhancer.enhance(0.6)
+        background = ImageEnhance.Brightness(background).enhance(0.6)
+        image2 = background
 
-        # Crop center thumbnail and resize
+        # Load and color circle
+        circle = Image.open("EsproMusic/assets/circle.png").convert("RGBA")
+        color = make_col()
+        data = np.array(circle)
+        red, green, blue, alpha = data.T
+        white_areas = (red == 255) & (green == 255) & (blue == 255)
+        data[..., :-1][white_areas.T] = color
+        circle = Image.fromarray(data)
+
+        # Crop center image circle
         image3 = image1.crop((280, 0, 1000, 720))
-        image3 = image3.resize((854, 480))
+        lum_img = Image.new("L", [720, 720], 0)
+        ImageDraw.Draw(lum_img).pieslice([(0, 0), (720, 720)], 0, 360, fill=255, outline="white")
+        final_img_arr = np.dstack((np.array(image3), np.array(lum_img)))
+        image3 = Image.fromarray(final_img_arr).resize((600, 600))
 
-        # Create white border
-        border_width = 10
-        bg_width = image3.width + 2 * border_width
-        bg_height = image3.height + 2 * border_width
-        white_bg = Image.new("RGB", (bg_width, bg_height), (255, 255, 255))
-        white_bg.paste(image3, (border_width, border_width))
+        # Paste image parts
+        image2.paste(image3, (50, 70), mask=image3)
+        image2.paste(circle, (0, 0), mask=circle)
 
-        # Paste bordered thumbnail centered on background
+        # Fonts
+        font1 = ImageFont.truetype('EsproMusic/assets/font.ttf', 30)
+        font2 = ImageFont.truetype('EsproMusic/assets/font2.ttf', 70)
+        font3 = ImageFont.truetype('EsproMusic/assets/font2.ttf', 40)
+        font4 = ImageFont.truetype('EsproMusic/assets/font2.ttf', 35)
+
+        # Draw text
+        draw = ImageDraw.Draw(image2)
+        draw.text((10, 10), "ESPRO MUSIC", fill="white", font=font1)
+        draw.text((670, 150), "NOW PLAYING", fill="white", font=font2, stroke_width=2, stroke_fill="white")
+
+        title1 = truncate(title)
+        draw.text((670, 300), title1[0], fill="white", stroke_width=1, stroke_fill="white", font=font3)
+        draw.text((670, 350), title1[1], fill="white", stroke_width=1, stroke_fill="white", font=font3)
+
+        draw.text((670, 450), f"Views : {views}", fill="white", font=font4)
+        draw.text((670, 500), f"Duration : {duration} Mins", fill="white", font=font4)
+        draw.text((670, 550), f"Channel : {channel}", fill="white", font=font4)
+
+        # Save final image (no border)
         image2 = image2.convert("RGB")
-        bg_w, bg_h = image2.size
-        thumb_w, thumb_h = white_bg.size
-        x = (bg_w - thumb_w) // 2
-        y = (bg_h - thumb_h) // 2
-        image2.paste(white_bg, (x, y))
-
-        # Load and add progress bar image
-        progress_img = Image.open("EsproMusic/assets/logo.png").convert("RGBA")
-        progress_img = progress_img.resize((1280, 720))
-        px = (image2.width - progress_img.width) // 2
-        py = image2.height - progress_img.height - 10
-        image2.paste(progress_img, (px, py), progress_img)
-
-        
-
-        # Save final image
-        image2.save(final_path)
-        return final_path
+        image2.save(cached_file)
+        return cached_file
 
     except Exception as e:
         print(e)
