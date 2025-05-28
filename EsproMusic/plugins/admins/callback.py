@@ -21,7 +21,7 @@ from EsproMusic.utils.decorators.language import languageCB
 from EsproMusic.utils.formatters import seconds_to_min
 from EsproMusic.utils.inline import close_markup, stream_markup, stream_markup_timer
 from EsproMusic.utils.stream.autoclear import auto_clean
-from EsproMusic.utils.thumbnails import get_thumb
+from EsproMusic.utils.thumbnails import gen_thumb
 from config import (
     BANNED_USERS,
     SUPPORT_CHAT,

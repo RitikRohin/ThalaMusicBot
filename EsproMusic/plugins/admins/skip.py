@@ -9,7 +9,7 @@ from EsproMusic.utils.database import get_loop
 from EsproMusic.utils.decorators import AdminRightsCheck
 from EsproMusic.utils.inline import close_markup, stream_markup
 from EsproMusic.utils.stream.autoclear import auto_clean
-from EsproMusic.utils.thumbnails import get_thumb
+from EsproMusic.utils.thumbnails import gen_thumb
 from config import BANNED_USERS
 
 
