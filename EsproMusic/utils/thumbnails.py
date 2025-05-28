@@ -16,8 +16,11 @@ def handle_call():
     instance.run()
 
 
-class Ritik1:
-    def __init__(self):
+    def make_col():
+    return (random.randint(0,255),random.randint(0,255),random.randint(0,255))
+    
+
+
     def changeImageSize(maxWidth, maxHeight, image):
     widthRatio = maxWidth / image.size[0]
     heightRatio = maxHeight / image.size[1]
@@ -35,7 +38,22 @@ def clear(text):
             title += " " + i
     return title.strip()
 
+def truncate(text):
+    list = text.split(" ")
+    text1 = ""
+    text2 = ""    
+    for i in list:
+        if len(text1) + len(i) < 30:        
+            text1 += " " + i
+        elif len(text2) + len(i) < 30:       
+            text2 += " " + i
 
+    text1 = text1.strip()
+    text2 = text2.strip()     
+    return [text1,text2]
+
+class Ritik1:
+    def __init__(self):
 async def get_thumb(videoid):
     if os.path.isfile(f"cache/{videoid}.png"):
         return f"cache/{videoid}.png"
@@ -128,35 +146,13 @@ async def get_thumb(videoid):
         return YOUTUBE_IMG_URL
 
 
+
+    
+
+
 #############second class here
 class Ritik2:
     def __init__(self):
-    def make_col():
-    return (random.randint(0,255),random.randint(0,255),random.randint(0,255))
-
-
-def changeImageSize(maxWidth, maxHeight, image):
-    widthRatio = maxWidth / image.size[0]
-    heightRatio = maxHeight / image.size[1]
-    newWidth = int(widthRatio * image.size[0])
-    newHeight = int(heightRatio * image.size[1])
-    newImage = image.resize((newWidth, newHeight))
-    return newImage
-
-def truncate(text):
-    list = text.split(" ")
-    text1 = ""
-    text2 = ""    
-    for i in list:
-        if len(text1) + len(i) < 30:        
-            text1 += " " + i
-        elif len(text2) + len(i) < 30:       
-            text2 += " " + i
-
-    text1 = text1.strip()
-    text2 = text2.strip()     
-    return [text1,text2]
-
 async def get_thumb(videoid):
     try:
         if os.path.isfile(f"cache/{videoid}.jpg"):
@@ -194,7 +190,7 @@ async def get_thumb(videoid):
                         )
                         await f.write(await resp.read())
                         await f.close()
-
+                        
             youtube = Image.open(f"cache/thumb{videoid}.jpg")
             image1 = changeImageSize(1280, 720, youtube)
             image2 = image1.convert("RGBA")
