@@ -11,6 +11,11 @@ from config import YOUTUBE_IMG_URL
 logging.basicConfig(level=logging.INFO)
 
 
+def handle_call():
+    chosen_class = random.choice([Ritik1, Ritik2])
+    instance = chosen_class()
+    instance.run()
+
 class Ritik1:
     def __init__(
         self,
