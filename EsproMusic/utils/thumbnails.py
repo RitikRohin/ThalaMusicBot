@@ -17,7 +17,7 @@ def handle_call():
 
 
 class Ritik1:
-    @staticmethod
+    def __init__(self):
     def changeImageSize(maxWidth, maxHeight, image):
     widthRatio = maxWidth / image.size[0]
     heightRatio = maxHeight / image.size[1]
@@ -128,9 +128,9 @@ async def get_thumb(videoid):
         return YOUTUBE_IMG_URL
 
 
-# 👇 Add your second class here
+#############second class here
 class Ritik2:
-    @staticmethod
+    def __init__(self):
     def make_col():
     return (random.randint(0,255),random.randint(0,255),random.randint(0,255))
 
