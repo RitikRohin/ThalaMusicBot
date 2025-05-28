@@ -1,4 +1,4 @@
-gen_thumbimport asyncio
+import asyncio
 
 from pyrogram import filters
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
@@ -21,7 +21,7 @@ from EsproMusic.utils.decorators.language import languageCB
 from EsproMusic.utils.formatters import seconds_to_min
 from EsproMusic.utils.inline import close_markup, stream_markup, stream_markup_timer
 from EsproMusic.utils.stream.autoclear import auto_clean
-from EsproMusic.utils.thumbnails import gen_thumb
+from EsproMusic.utils.thumbnails import get_thumb
 from config import (
     BANNED_USERS,
     SUPPORT_CHAT,
@@ -136,7 +136,7 @@ async def del_back_playlist(client, CallbackQuery, _):
             return await CallbackQuery.answer(_["admin_1"], show_alert=True)
         await CallbackQuery.answer()
         await Music_off(chat_id)
-        await Ritik.pause_stream(chat_id)
+        await Loy.pause_stream(chat_id)
         await CallbackQuery.message.reply_text(
             _["admin_2"].format(mention), reply_markup=close_markup(_)
         )
@@ -145,13 +145,13 @@ async def del_back_playlist(client, CallbackQuery, _):
             return await CallbackQuery.answer(_["admin_3"], show_alert=True)
         await CallbackQuery.answer()
         await Music_on(chat_id)
-        await Ritik.resume_stream(chat_id)
+        await Loy.resume_stream(chat_id)
         await CallbackQuery.message.reply_text(
             _["admin_4"].format(mention), reply_markup=close_markup(_)
         )
     elif command == "Stop" or command == "End":
         await CallbackQuery.answer()
-        await Ritik.stop_stream(chat_id)
+        await Loy.stop_stream(chat_id)
         await set_loop(chat_id, 0)
         await CallbackQuery.message.reply_text(
             _["admin_5"].format(mention), reply_markup=close_markup(_)
@@ -177,7 +177,7 @@ async def del_back_playlist(client, CallbackQuery, _):
                         reply_markup=close_markup(_),
                     )
                     try:
-                        return await Ritik.stop_stream(chat_id)
+                        return await Loy.stop_stream(chat_id)
                     except:
                         return
             except:
@@ -191,7 +191,7 @@ async def del_back_playlist(client, CallbackQuery, _):
                         ),
                         reply_markup=close_markup(_),
                     )
-                    return await Ritik.stop_stream(chat_id)
+                    return await Loy.stop_stream(chat_id)
                 except:
                     return
         else:
@@ -223,7 +223,7 @@ async def del_back_playlist(client, CallbackQuery, _):
             except:
                 image = None
             try:
-                await Ritik.skip_stream(chat_id, link, video=status, image=image)
+                await Loy.skip_stream(chat_id, link, video=status, image=image)
             except:
                 return await CallbackQuery.message.reply_text(_["call_6"])
             button = stream_markup(_, chat_id)
@@ -259,7 +259,7 @@ async def del_back_playlist(client, CallbackQuery, _):
             except:
                 image = None
             try:
-                await Ritik.skip_stream(chat_id, file_path, video=status, image=image)
+                await Loy.skip_stream(chat_id, file_path, video=status, image=image)
             except:
                 return await mystic.edit_text(_["call_6"])
             button = stream_markup(_, chat_id)
@@ -280,7 +280,7 @@ async def del_back_playlist(client, CallbackQuery, _):
             await mystic.delete()
         elif "index_" in queued:
             try:
-                await Ritik.skip_stream(chat_id, videoid, video=status)
+                await Loy.skip_stream(chat_id, videoid, video=status)
             except:
                 return await CallbackQuery.message.reply_text(_["call_6"])
             button = stream_markup(_, chat_id)
@@ -303,7 +303,7 @@ async def del_back_playlist(client, CallbackQuery, _):
                 except:
                     image = None
             try:
-                await Ritik.skip_stream(chat_id, queued, video=status, image=image)
+                await Loy.skip_stream(chat_id, queued, video=status, image=image)
             except:
                 return await CallbackQuery.message.reply_text(_["call_6"])
             if videoid == "telegram":
