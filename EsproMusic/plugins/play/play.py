@@ -288,7 +288,7 @@ async def play_commnd(
             return await mystic.delete()
         else:
             try:
-                await Loy.stream_call(url)
+                await Ritik.stream_call(url)
             except NoActiveGroupCall:
                 await mystic.edit_text(_["black_9"])
                 return await app.send_message(
@@ -500,9 +500,14 @@ async def play_Music(client, CallbackQuery, _):
         return await mystic.edit_text(err)
     return await mystic.delete()
 
+<<<<<<< HEAD
+@app.on_callback_query(filters.regex("RitikmousAdmin") & ~BANNED_USERS)
+async def Ritikmous_check(client, CallbackQuery):
+=======
 
 @app.on_callback_query(filters.regex("LoymousAdmin") & ~BANNED_USERS)
 async def Loymous_check(client, CallbackQuery):
+>>>>>>> eafb3d9a600b750498fa66e964528a1003f5b18f
     try:
         await CallbackQuery.answer(
             "» ʀᴇᴠᴇʀᴛ ʙᴀᴄᴋ ᴛᴏ ᴜsᴇʀ ᴀᴄᴄᴏᴜɴᴛ :\n\nᴏᴘᴇɴ ʏᴏᴜʀ ɢʀᴏᴜᴘ sᴇᴛᴛɪɴɢs.\n-> ᴀᴅᴍɪɴɪsᴛʀᴀᴛᴏʀs\n-> ᴄʟɪᴄᴋ ᴏɴ ʏᴏᴜʀ ɴᴀᴍᴇ\n-> ᴜɴᴄʜᴇᴄᴋ ᴀɴᴏɴʏᴍᴏᴜs ᴀᴅᴍɪɴ ᴘᴇʀᴍɪssɪᴏɴs.",
@@ -511,8 +516,12 @@ async def Loymous_check(client, CallbackQuery):
     except:
         pass
 
+<<<<<<< HEAD
+@app.on_callback_query(filters.regex("RitikPlaylists") & ~BANNED_USERS)
+=======
 
 @app.on_callback_query(filters.regex("LoyPlaylists") & ~BANNED_USERS)
+>>>>>>> eafb3d9a600b750498fa66e964528a1003f5b18f
 @languageCB
 async def play_playlists_command(client, CallbackQuery, _):
     callback_data = CallbackQuery.data.strip()
