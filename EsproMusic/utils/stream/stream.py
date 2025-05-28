@@ -13,7 +13,7 @@ from EsproMusic.utils.exceptions import AssistantErr
 from EsproMusic.utils.inline import aq_markup, close_markup, stream_markup
 from EsproMusic.utils.pastebin import LoyBin
 from EsproMusic.utils.stream.queue import put_queue, put_queue_index
-from EsproMusic.utils.thumbnails import handle_call
+from EsproMusic.utils.thumbnails import get_thumb
 
 
 async def stream(
