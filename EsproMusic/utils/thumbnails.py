@@ -14,10 +14,6 @@ def handle_call():
     chosen_class = random.choice([Ritik1, Ritik2])
     instance = chosen_class()
     instance.run()
-
-
-    def make_col():
-    return (random.randint(0,255),random.randint(0,255),random.randint(0,255))
     
 
 
@@ -153,6 +149,10 @@ async def get_thumb(videoid):
 #############second class here
 class Ritik2:
     def __init__(self):
+
+def make_col():
+    return (random.randint(0,255),random.randint(0,255),random.randint(0,255))
+
 async def get_thumb(videoid):
     try:
         if os.path.isfile(f"cache/{videoid}.jpg"):
