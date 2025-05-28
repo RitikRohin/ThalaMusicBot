@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+Ritik<<<<<<< HEAD
 Ritikgen_thumbfrom pyrogram import filters
 =======
 from pyrogram import filters
@@ -52,7 +52,7 @@ async def skip(cli, message: Message, _, chat_id):
                                         ),
                                         reply_markup=close_markup(_),
                                     )
-                                    await Loy.stop_stream(chat_id)
+                                    await Ritik.stop_stream(chat_id)
                                 except:
                                     return
                                 break
@@ -79,7 +79,7 @@ async def skip(cli, message: Message, _, chat_id):
                     reply_markup=close_markup(_),
                 )
                 try:
-                    return await Loy.stop_stream(chat_id)
+                    return await Ritik.stop_stream(chat_id)
                 except:
                     return
         except:
@@ -90,7 +90,7 @@ async def skip(cli, message: Message, _, chat_id):
                     ),
                     reply_markup=close_markup(_),
                 )
-                return await Loy.stop_stream(chat_id)
+                return await Ritik.stop_stream(chat_id)
             except:
                 return
     queued = check[0]["file"]
@@ -115,7 +115,7 @@ async def skip(cli, message: Message, _, chat_id):
         except:
             image = None
         try:
-            await Loy.skip_stream(chat_id, link, video=status, image=image)
+            await Ritik.skip_stream(chat_id, link, video=status, image=image)
         except:
             return await message.reply_text(_["call_6"])
         button = stream_markup(_, chat_id)
@@ -148,7 +148,7 @@ async def skip(cli, message: Message, _, chat_id):
         except:
             image = None
         try:
-            await Loy.skip_stream(chat_id, file_path, video=status, image=image)
+            await Ritik.skip_stream(chat_id, file_path, video=status, image=image)
         except:
             return await mystic.edit_text(_["call_6"])
         button = stream_markup(_, chat_id)
@@ -168,7 +168,7 @@ async def skip(cli, message: Message, _, chat_id):
         await mystic.delete()
     elif "index_" in queued:
         try:
-            await Loy.skip_stream(chat_id, videoid, video=status)
+            await Ritik.skip_stream(chat_id, videoid, video=status)
         except:
             return await message.reply_text(_["call_6"])
         button = stream_markup(_, chat_id)
@@ -190,7 +190,7 @@ async def skip(cli, message: Message, _, chat_id):
             except:
                 image = None
         try:
-            await Loy.skip_stream(chat_id, queued, video=status, image=image)
+            await Ritik.skip_stream(chat_id, queued, video=status, image=image)
         except:
             return await message.reply_text(_["call_6"])
         if videoid == "telegram":
