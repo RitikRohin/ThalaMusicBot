@@ -1,4 +1,4 @@
-from pyrogram import filters
+gen_thumbfrom pyrogram import filters
 from pyrogram.types import InlineKeyboardMarkup, Message
 
 import config

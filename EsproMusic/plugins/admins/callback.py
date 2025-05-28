@@ -1,4 +1,4 @@
-import asyncio
+gen_thumbimport asyncio
 
 from pyrogram import filters
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup

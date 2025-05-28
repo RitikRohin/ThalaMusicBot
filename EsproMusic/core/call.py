@@ -1,4 +1,4 @@
-import asyncio
+gen_thumbimport asyncio
 import os
 from datetime import datetime, timedelta
 from typing import Union

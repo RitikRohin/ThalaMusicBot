@@ -1,4 +1,4 @@
-import os
+gen_thumbimport os
 from random import randint
 from typing import Union
 
