@@ -1,4 +1,8 @@
+<<<<<<< HEAD
+Ritikgen_thumbfrom pyrogram import filters
+=======
 from pyrogram import filters
+>>>>>>> ed8a6d8e39fde98786f3230a4928aa0fe865c31f
 from pyrogram.types import InlineKeyboardMarkup, Message
 
 import config

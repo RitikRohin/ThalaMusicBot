@@ -1,4 +1,8 @@
+<<<<<<< HEAD
+Ritikgen_thumbimport asyncio
+=======
 import asyncio
+>>>>>>> ed8a6d8e39fde98786f3230a4928aa0fe865c31f
 
 from pyrogram import filters
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
