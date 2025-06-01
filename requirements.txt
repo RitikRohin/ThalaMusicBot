@@ -19,6 +19,7 @@ pyrofork
 python-dotenv
 pyyaml
 requests
+lexica-api
 speedtest-cli
 spotipy
 tgcrypto
