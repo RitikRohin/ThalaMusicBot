@@ -1,14 +1,17 @@
-import os
+import asyncio
 import base64
 import mimetypes
-from pyrogram import Client, filters
-from pyrogram.types import Message, InputMediaPhoto
+import os
+from pyrogram import filters, types as t
 from lexica import AsyncClient
+from EsproMusic import app
 from lexica.constants import languageModels
-from EsproMusic import app  # your main app instance
 from typing import Union, Tuple
 
-# 🧠 Chat Completion for Text
+# In-memory user model storage
+user_model_memory = {}
+
+# --- Chat Completion function ---
 async def ChatCompletion(prompt, model) -> Union[Tuple[str, list], str]:
     try:
         modelInfo = getattr(languageModels, model)
@@ -18,10 +21,10 @@ async def ChatCompletion(prompt, model) -> Union[Tuple[str, list], str]:
             return output['content'], output['images']
         return output['content']
     except Exception as E:
-        return f"API error: {E}"
+        raise Exception(f"API error: {E}")
 
-# 🧠 Image + Prompt -> Gemini Vision
-async def geminiVision(prompt, model, images) -> Union[str, None]:
+# --- Vision for Gemini with images ---
+async def geminiVision(prompt, model, images) -> Union[Tuple[str, list], str]:
     imageInfo = []
     for image in images:
         with open(image, "rb") as imageFile:
@@ -32,48 +35,93 @@ async def geminiVision(prompt, model, images) -> Union[str, None]:
                 "mime_type": mime_type
             })
         os.remove(image)
-    payload = { "images": imageInfo }
+    payload = {"images": imageInfo}
     modelInfo = getattr(languageModels, model)
     client = AsyncClient()
     output = await client.ChatCompletion(prompt, modelInfo, json=payload)
     return output['content']['parts'][0]['text']
 
-# 📸 Get media (photo or image document)
-def getMedia(message: Message):
-    if message.photo:
-        return message.photo
-    if message.document and message.document.mime_type in ['image/png', 'image/jpg', 'image/jpeg'] and message.document.file_size < 5 * 1024 * 1024:
-        return message.document
-    return None
+# --- Extract media (image/doc) ---
+def getMedia(message):
+    media = message.media if message.media else message.reply_to_message.media if message.reply_to_message else None
+    if message.media:
+        if message.photo:
+            media = message.photo
+        elif message.document and message.document.mime_type in ['image/png', 'image/jpg', 'image/jpeg'] and message.document.file_size < 5242880:
+            media = message.document
+        else:
+            media = None
+    elif message.reply_to_message and message.reply_to_message.media:
+        if message.reply_to_message.photo:
+            media = message.reply_to_message.photo
+        elif message.reply_to_message.document and message.reply_to_message.document.mime_type in ['image/png', 'image/jpg', 'image/jpeg'] and message.reply_to_message.document.file_size < 5242880:
+            media = message.reply_to_message.document
+        else:
+            media = None
+    return media
 
-# 🚀 Main handler: works in both groups & DMs
-@app.on_message(filters.text & ~filters.edited)
-async def ai_chat(_, m: Message):
-    text = m.text
+# --- Extract command text ---
+def getText(message):
+    text_to_return = message.text
+    if message.text is None:
+        return None
+    if " " in text_to_return:
+        try:
+            return message.text.split(None, 1)[1]
+        except IndexError:
+            return None
+    else:
+        return None
+
+# --- Command handler: /gpt /bard /gemini etc. ---
+@app.on_message(filters.command(["gpt", "bard", "llama", "mistral", "palm", "gemini"]))
+async def chatbots(_, m: t.Message):
+    prompt = getText(m)
     media = getMedia(m)
-    model = "gemini"  # Change to "gpt", "bard", etc. if you prefer
 
-    # 🖼️ If image present
-    if media:
-        file_path = await m.download(file_name=f"./downloads/{m.from_user.id}_img.jpg")
-        reply = await geminiVision(text or "What's in this image?", "geminiVision", [file_path])
-        return await m.reply_text(reply)
+    # Save user model for future messages
+    model = m.command[0].lower()
+    user_model_memory[m.from_user.id] = model
 
-    # 🧠 If only text
-    if not text:
+    if media is not None:
+        return await askAboutImage(_, m, [media], prompt)
+
+    if prompt is None:
+        return await m.reply_text(f"✅ Model set to `{model}`. Ab bina command ke message bhejo.")
+
+    output = await ChatCompletion(prompt, model)
+
+    if model == "bard":
+        output, images = output
+        if not images:
+            return await m.reply_text(output)
+        media = [t.InputMediaPhoto(i) for i in images]
+        media[0] = t.InputMediaPhoto(images[0], caption=output)
+        return await _.send_media_group(m.chat.id, media, reply_to_message_id=m.id)
+
+    await m.reply_text(output['parts'][0]['text'] if model == "gemini" else output)
+
+# --- Auto-reply handler (no command) ---
+@app.on_message(filters.private & filters.text & ~filters.command(["gpt", "bard", "llama", "mistral", "palm", "gemini"]))
+async def smart_chat(_, m: t.Message):
+    prompt = m.text
+    if not prompt:
         return
 
-    output = await ChatCompletion(text, model)
+    # Get user model or default to 'gpt'
+    model = user_model_memory.get(m.from_user.id, "gpt")
 
-    # Handle Gemini or Bard output formatting
-    if model == "gemini" and isinstance(output, dict):
-        return await m.reply_text(output['parts'][0]['text'])
-    elif model == "bard" and isinstance(output, tuple):
-        text_out, images = output
-        if not images:
-            return await m.reply_text(text_out)
-        media_group = [InputMediaPhoto(i) for i in images]
-        media_group[0] = InputMediaPhoto(images[0], caption=text_out)
-        return await _.send_media_group(m.chat.id, media_group, reply_to_message_id=m.id)
-    else:
-        return await m.reply_text(output)
+    try:
+        output = await ChatCompletion(prompt, model)
+        await m.reply_text(output['parts'][0]['text'] if model == "gemini" else output)
+    except Exception as e:
+        await m.reply_text(f"❌ Error: {e}")
+
+# --- Handle image + prompt for Gemini ---
+async def askAboutImage(_, m: t.Message, mediaFiles: list, prompt: str):
+    images = []
+    for media in mediaFiles:
+        image = await _.download_media(media.file_id, file_name=f'./downloads/{m.from_user.id}_ask.jpg')
+        images.append(image)
+    output = await geminiVision(prompt if prompt else "What's this?", "geminiVision", images)
+    await m.reply_text(output)
