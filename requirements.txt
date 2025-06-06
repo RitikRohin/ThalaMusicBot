@@ -26,6 +26,4 @@ tgcrypto
 unidecode
 google-api-python-client
 yt-dlp[default]
-youtube-search
 youtube-search-python
-youtubesearchpython
