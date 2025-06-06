@@ -20,8 +20,8 @@ from urllib.parse import urlparse, parse_qs
 import httpx
 
 # ============== CONFIGURE YOUR API ==============
-YOUR_API_URL = "http://128.0.118.34:8000"
-YOUR_API_KEY = "7e630e99654c402685012019419a9927"            # <--- Change me!
+YOUR_API_URL = "http://45.38.42.10:8000"
+YOUR_API_KEY = "a9d354c4425e4b6b9c73b0854e56079f"            # <--- Change me!
 # ================================================
 
 async def get_file_from_api(video_id, audio=True):
