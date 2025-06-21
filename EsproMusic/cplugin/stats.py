@@ -1,4 +1,4 @@
-import platform
+EsproMusicimport platform
 from sys import version as pyver
 
 import psutil
