@@ -1,4 +1,4 @@
-EsproMusicfrom pyrogram.types import (
+EsproMusicEsproMusicfrom pyrogram.types import (
     InlineKeyboardButton,
     InlineKeyboardMarkup,
     InlineQueryResultPhoto,

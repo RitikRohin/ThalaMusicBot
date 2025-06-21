@@ -1,4 +1,4 @@
-EsproMusicfrom pyrogram import filters, Client
+EsproMusicEsproMusicfrom pyrogram import filters, Client
 from pyrogram.enums import ChatType
 from pyrogram.errors import MessageNotModified
 from pyrogram.types import (

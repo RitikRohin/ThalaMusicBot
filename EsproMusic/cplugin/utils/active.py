@@ -1,4 +1,4 @@
-EsproMusicfrom Clonify.misc import clonedb
+EsproMusicEsproMusicfrom Clonify.misc import clonedb
 
 active = []
 stream = {}

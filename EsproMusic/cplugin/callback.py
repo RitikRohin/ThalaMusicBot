@@ -1,4 +1,4 @@
-EsproMusicimport asyncio
+EsproMusicEsproMusicimport asyncio
 import random
 from pyrogram.enums import ChatMemberStatus
 from pyrogram.errors import (
