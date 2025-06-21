@@ -1,4 +1,4 @@
-import random
+EsproMusicimport random
 
 from pyrogram import filters, Client
 from pyrogram.types import Message
