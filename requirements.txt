@@ -4,6 +4,8 @@ asyncio
 beautifulsoup4
 dnspython
 ffmpeg-python
+fastapi
+uvicorn[standard]
 gitpython
 isodate
 hachoir
