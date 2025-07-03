@@ -15,7 +15,7 @@ motor
 numpy
 pillow
 psutil
-py-tgcalls==0.9.7
+py-tgcalls
 pykeyboard
 pyrofork
 python-dotenv
@@ -29,3 +29,5 @@ unidecode
 google-api-python-client
 yt-dlp[default]
 youtube-search-python
+gunicorn
+
