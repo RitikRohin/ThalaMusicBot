@@ -42,6 +42,16 @@
         "value": "",
         "required": true
       },
+      "SUPPORT_CHANNEL": {
+        "description": "CHANNEL",
+        "value": "",
+        "required": true
+      },
+      "SUPPORT_CHAT": {
+        "description": "GROUP",
+        "value": "",
+        "required": true
+      },
       "LOGGER_ID": {
         "description": "Private Group Bana Kar Uska Id Dalo",
         "value": "",
@@ -60,4 +70,4 @@
           }
       ],
       "stack": "container"
-  }
+}
