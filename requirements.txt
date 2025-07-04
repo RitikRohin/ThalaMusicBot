@@ -15,9 +15,7 @@ motor
 numpy
 pillow
 psutil
-pyrogram==2.0.106
-tgcrypto==1.2.5
-git+https://github.com/callsmusic/pytgcalls.git@patched
+py-tgcalls
 pykeyboard
 pyrofork
 python-dotenv
