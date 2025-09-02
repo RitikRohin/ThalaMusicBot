@@ -35,7 +35,7 @@ from EsproMusic.utils.exceptions import AssistantErr
 from EsproMusic.utils.formatters import check_duration, seconds_to_min, speed_converter
 from EsproMusic.utils.inline.play import stream_markup
 from EsproMusic.utils.stream.autoclear import auto_clean
-from EsproMusic.utils.thumbnails import gen_thumb
+from EsproMusic.utils.thumbnails import get_thumb
 from strings import get_string
 
 autoend = {}
